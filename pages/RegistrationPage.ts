@@ -3,13 +3,11 @@ export class RegistrationPage {
 
   async open() {
     await this.page.goto("http://market.sedtest-tools.ru/", {
-      waitUntil: "domcontentloaded",
+      waitUntil: "load",
       timeout: 60000,
     });
 
     await this.page.getByRole("button", { name: "Войти" }).click();
-
-    // Ждём и кликаем по тексту "Еще не зарегистрированы ?"
     await this.page.getByText("Еще не зарегистрированы ?").click();
 
     // Ждём появления поля email, как индикатора что форма открыта
@@ -25,27 +23,46 @@ export class RegistrationPage {
     phone?: string;
     password?: string;
   }) {
-    if (data.email !== undefined)
-      await this.page.fill('input[name="email"]', data.email);
-    if (data.firstName !== undefined)
-      await this.page.fill('input[name="first_name"]', data.firstName);
-    if (data.lastName !== undefined)
-      await this.page.fill('input[name="last_name"]', data.lastName);
-    if (data.phone !== undefined)
-      await this.page.fill('input[name="phone"]', data.phone);
-    if (data.password !== undefined)
-      await this.page.fill('input[name="password"]', data.password);
+    if (data.email !== undefined) {
+      const email = this.page.getByRole("textbox", { name: "Почта" });
+      await email.waitFor({ timeout: 10000 });
+      await email.fill(data.email);
+    }
+
+    if (data.firstName !== undefined) {
+      const firstName = this.page.getByRole("textbox", { name: "Имя" });
+      await firstName.waitFor({ timeout: 10000 });
+      await firstName.fill(data.firstName);
+    }
+
+    if (data.lastName !== undefined) {
+      const lastName = this.page.getByRole("textbox", { name: "Фамилия" });
+      await lastName.waitFor({ timeout: 10000 });
+      await lastName.fill(data.lastName);
+    }
+
+    if (data.phone !== undefined) {
+      const phone = this.page.getByRole("textbox", { name: "Телефон" });
+      await phone.waitFor({ timeout: 10000 });
+      await phone.fill(data.phone);
+    }
+
+    if (data.password !== undefined) {
+      const password = this.page.getByRole("textbox", { name: "Пароль" });
+      await password.waitFor({ timeout: 10000 });
+      await password.fill(data.password);
+    }
   }
 
   async submit() {
-    await this.page.click('button:has-text("Зарегистрироваться")');
+    await this.page.getByRole("button", { name: "Зарегестрироватся" }).click();
   }
 
   getEmailError() {
-    return this.page.locator('input[name="email"]');
+    return this.page.getByRole("textbox", { name: "Почта" });
   }
 
   getPhoneError() {
-    return this.page.locator('input[name="phone"]');
+    return this.page.getByRole("textbox", { name: "Телефон" });
   }
 }
