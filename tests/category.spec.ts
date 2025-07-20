@@ -10,7 +10,6 @@ test.describe("Категории", () => {
     const categoryList = ["Одежда", "Техника", "Спорт", "Услуги"];
     for (const name of categoryList) {
       await categories.selectCategory(name);
-      await page.goBack(); // возвращаемся на список категорий
     }
   });
 });
