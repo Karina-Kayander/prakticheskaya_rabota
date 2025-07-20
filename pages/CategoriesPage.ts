@@ -31,9 +31,10 @@ export class CategoriesPage {
     const category = this.page
       .locator(".Categories_item__RBV65 a", { hasText: name })
       .first();
+    await expect(category).toBeVisible();
     await category.click();
 
     // Проверка: заголовок с названием категории
-    //   await expect(this.page.getByRole("heading", { name })).toBeVisible();
+    await expect(this.page.locator(".ListCard_title__YqVEd")).toHaveText(name);
   }
 }
