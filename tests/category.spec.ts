@@ -5,7 +5,6 @@ test.describe("Категории", () => {
   test("Открытие категорий и переход по ним", async ({ page }) => {
     const categories = new CategoriesPage(page);
     await categories.open();
-    await categories.openCategoriesList();
 
     const categoryList = ["Одежда", "Техника", "Спорт", "Услуги"];
     for (const name of categoryList) {

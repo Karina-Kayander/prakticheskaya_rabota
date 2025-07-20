@@ -28,6 +28,8 @@ export class CategoriesPage {
   }
 
   async selectCategory(name: string) {
+    await this.openCategoriesList();
+
     const category = this.page
       .locator(".Categories_item__RBV65 a", { hasText: name })
       .first();
