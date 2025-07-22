@@ -6,7 +6,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: "html",
+  reporter: [["html", { open: "never" }]],
 
   use: {
     baseURL: "http://market.sedtest-tools.ru",
@@ -30,9 +30,5 @@ export default defineConfig({
     },
   ],
 
-  // webServer: {
-  //   command: 'npm run dev',
-  //   reuseExistingServer: !process.env.CI,
-  //   timeout: 120 * 1000,
-  // },
+  // webServer отключён, сервер не будет запускаться автоматически
 });

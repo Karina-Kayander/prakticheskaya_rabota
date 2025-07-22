@@ -7,25 +7,22 @@ test.describe("Подача объявления", () => {
     await publish.openMainPage();
     await publish.clickPublishButton();
 
-    // Проверка — открылось окно входа
     await expect(page.getByText("Вход")).toBeVisible();
   });
 
   test("Успешная подача объявления после авторизации (без фото)", async ({
     page,
-  }) => {
+  }, testInfo) => {
     const publish = new PublishPage(page);
+    const title = `Продам велосипед [${testInfo.project.name}]`;
 
-    // Авторизация
     await publish.openMainPage();
     await publish.clickLoginButton();
     await publish.login("karina@test.ru", "Qwerty123!");
-
-    // Подача объявления
     await publish.clickPublishButton();
 
     await publish.fillForm({
-      title: "Продам велосипед",
+      title,
       category: "Спорт",
       description: "Почти новый, использовался 2 раза",
       price: "8500",
@@ -33,105 +30,94 @@ test.describe("Подача объявления", () => {
 
     await publish.submitForm();
 
-    // Проверка успешной отправки
     await expect(page.locator("text=Объявление создано")).toBeVisible();
     await expect(page.locator("text=Мои объявления")).toBeVisible();
+
+    // Снятие объявления с продажи
+    await page.getByText("Мои объявления").click();
+    await publish.removeAd(title);
   });
 
   test("Пустое поле 'Название товара/услуги'", async ({ page }) => {
     const publish = new PublishPage(page);
 
-    // Авторизация
     await publish.openMainPage();
     await publish.clickLoginButton();
     await publish.login("karina@test.ru", "Qwerty123!");
-
-    // Открыть форму подачи объявления
     await publish.clickPublishButton();
 
-    // Заполняем только часть формы (без title)
     await publish.fillForm({
-      title: "", // <-- Пустой заголовок
+      title: "",
       category: "Спорт",
       description: "Почти новый, использовался 2 раза",
       price: "8500",
     });
 
-    // Отправка формы
     await publish.submitForm();
 
-    // Проверка: должна появиться ошибка или подсветка поля
     const titleField = page.locator('input[name="title"]');
     const helperText = titleField.locator(
       'xpath=following::p[contains(@class, "MuiFormHelperText-root")][1]'
     );
-
     await expect(helperText).toHaveText("Заполните поле");
   });
 
-  test("Подача объявления с ценой 0 (Договорная)", async ({ page }) => {
+  test("Подача объявления с ценой 0 (Договорная)", async ({
+    page,
+  }, testInfo) => {
     const publish = new PublishPage(page);
+    const title = `Отдам даром книгу [${testInfo.project.name}]`;
 
-    // Авторизация
     await publish.openMainPage();
     await publish.clickLoginButton();
     await publish.login("karina@test.ru", "Qwerty123!");
-
-    // Подача объявления
     await publish.clickPublishButton();
 
     await publish.fillForm({
-      title: "Отдам даром книгу",
+      title,
       category: "Услуги",
       description: "Книга в хорошем состоянии, самовывоз.",
-      price: "0", // Цена 0 — должна отображаться как "Договорная"
+      price: "0",
     });
 
     await publish.submitForm();
 
-    // Проверка: объявление создано
     await expect(page.locator("text=Объявление создано")).toBeVisible();
-    await expect(
-      page.locator("div.MuiBox-root.css-1blxejy", { hasText: "Мои объявления" })
-    ).toBeVisible();
-
-    // Открываем "Мои объявления"
     await page.getByText("Мои объявления").click();
 
-    // Проверка: цена отображается как "Договорная"
     await expect(
-      page.locator(".Card_price__ziptK", { hasText: "Договорная" })
+      page.locator(".Card_price__ziptK", { hasText: "Договорная" }).first()
     ).toBeVisible();
+
+    await publish.removeAd(title);
   });
 
-  test("Появление объявления в разделе 'Мои объявления'", async ({ page }) => {
+  test("Появление объявления в разделе 'Мои объявления'", async ({
+    page,
+  }, testInfo) => {
     const publish = new PublishPage(page);
+    const title = `Старый ноутбук ASUS [${testInfo.project.name}]`;
 
-    // 1. Авторизация
     await publish.openMainPage();
     await publish.clickLoginButton();
     await publish.login("karina@test.ru", "Qwerty123!");
-
-    // 2. Подача объявления
-    const title = "Старый ноутбук ASUS";
     await publish.clickPublishButton();
+
     await publish.fillForm({
       title,
       category: "Техника",
       description: "Работает, но медленно. Батарея слабая.",
       price: "1500",
     });
-    await publish.submitForm();
 
-    // 3. Проверка успешной подачи
+    await publish.submitForm();
     await expect(page.locator("text=Объявление создано")).toBeVisible();
 
-    // 4. Переход в раздел "Мои объявления"
-    await page
-      .locator("div.MuiBox-root.css-1blxejy", { hasText: "Мои объявления" })
-      .click();
+    await page.getByText("Мои объявления").click();
+    await expect(
+      page.locator(`.Card_name__kuUUr:has-text("${title}")`)
+    ).toBeVisible();
 
-    // 5. Проверка, что объявление отображается
-    await expect(page.locator(`text=${title}`)).toBeVisible();
+    await publish.removeAd(title);
   });
 });

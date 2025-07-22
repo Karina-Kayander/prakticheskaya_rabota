@@ -56,4 +56,21 @@ export class PublishPage {
       .nth(1)
       .click();
   }
+
+  async removeAd(title: string) {
+    const card = this.page.locator(".Card_wrap__ZiHIA", {
+      has: this.page.locator(".Card_name__kuUUr", { hasText: title }),
+    });
+
+    // Открыть меню действий
+    await card.locator('[data-testid="MoreVertIcon"]').click();
+
+    // Нажать "Снять с продажи"
+    await this.page
+      .locator("div.Card_settingItem__THhNu", { hasText: "Снять с продажи" })
+      .click();
+
+    // Дождаться исчезновения объявления (опционально, по надёжности)
+    await expect(card).toHaveCount(0);
+  }
 }
