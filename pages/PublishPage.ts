@@ -8,7 +8,7 @@ export class PublishPage {
   }
 
   async clickPublishButton() {
-    await this.page.getByRole("button", { name: "Подать объявление" }).click();
+    await this.publishButton.click();
   }
 
   async clickLoginButton() {
@@ -62,15 +62,35 @@ export class PublishPage {
       has: this.page.locator(".Card_name__kuUUr", { hasText: title }),
     });
 
-    // Открыть меню действий
     await card.locator('[data-testid="MoreVertIcon"]').click();
-
-    // Нажать "Снять с продажи"
     await this.page
       .locator("div.Card_settingItem__THhNu", { hasText: "Снять с продажи" })
       .click();
 
-    // Дождаться исчезновения объявления (опционально, по надёжности)
     await expect(card).toHaveCount(0);
+  }
+
+  async goToMyAds() {
+    await this.myAdsLink.click();
+    await expect(this.page.locator("h3", { hasText: "Мои объявления" })).toBeVisible();
+  }
+
+  async expectAdVisible(title: string) {
+    await expect(
+      this.page.locator(".Card_name__kuUUr", { hasText: title })
+    ).toBeVisible();
+  }
+
+  // 🧩 Геттеры
+  private get publishButton() {
+    return this.page.getByRole("button", { name: "Подать объявление" });
+  }
+
+  private get myAdsLink() {
+    return this.page.getByText("Мои объявления");
+  }
+
+  private get adSuccessMessage() {
+    return this.page.locator("text=Объявление создано");
   }
 }
